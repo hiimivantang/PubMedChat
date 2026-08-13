@@ -1,0 +1,55 @@
+{
+  "cli_version": "0.10.0",
+  "checkpoint_id": "01KZY8CBPD803P2VTWFZY43Z6Z",
+  "session_id": "dfc35e9d-0571-4713-ab68-22f748df0d43",
+  "strategy": "manual-commit",
+  "created_at": "2026-08-13T19:08:04.854197525Z",
+  "branch": "main",
+  "checkpoints_count": 2,
+  "save_step_count": 3,
+  "files_touched": [
+    "pubmedchat-prototype-implementation-plan.md"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-4-7",
+  "turn_id": "afcd9f43e1e9",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 720106,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 7980,
+    "api_call_count": 14
+  },
+  "session_metrics": {
+    "turn_count": 5
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-08-13T19:08:04.838903288Z",
+    "agent_lines": 25,
+    "agent_removed": 15,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 25,
+    "total_lines_changed": 40,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 25,
+      "agent_lines_removed": 15
+    }
+  ]
+}
