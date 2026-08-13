@@ -7,3 +7,7 @@ ok. i want to be able to use autopilot to implement it once you're done. guide m
 ---
 
 include .claude/ and .entire/ in .gitignore
+
+---
+
+commit
