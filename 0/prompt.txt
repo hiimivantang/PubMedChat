@@ -1,0 +1,1 @@
+i've just ran git init. help me update .gitignore file
