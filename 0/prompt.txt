@@ -1,0 +1,1 @@
+can you copy the implementation plan from /home/ivantang-vbox/docs/pubmedchat-prototype-implementation-plan.md  to the current working directory
