@@ -77,7 +77,7 @@ Use the smallest corpus that supports a credible demo:
 - Normal chat requests use the local index after ingestion; they do not depend on a live NCBI request.
 - E-utilities support targeted fetches, prototyping, validation, and gap filling.
 - FTP baseline and update files support reproducible bulk ingestion.
-- PostgreSQL plus full-text search and `pgvector` is the default initial storage/search choice. Keep search interfaces modular so OpenSearch or another vector service can be introduced later.
+- Milvus is the default vector retrieval engine for Milestone 2. Keep article metadata and retrieval interfaces modular so lexical search, metadata storage, and alternative search backends can evolve independently.
 - No authentication is required for a local/demo deployment unless the host application already requires it.
 
 ## 4. Primary user flows
@@ -139,7 +139,8 @@ Use the smallest corpus that supports a credible demo:
                  |           | Citation check  |
                  |           +-----------------+
         +--------v------------------+
-        | PostgreSQL + FTS + pgvector|
+        |  Article metadata store     |
+        |  + Milvus vector indexes    |
         +--------+------------------+
                  |
         +--------v------------------+
@@ -159,7 +160,8 @@ Use the smallest corpus that supports a credible demo:
 - **Retrieval service:** lexical search, vector search, rank fusion, deduplication, reranking, metadata filters, and diversification.
 - **Generation service:** produce structured answers from selected evidence only.
 - **Citation validator:** verify PMID existence, citation-to-record mapping, supporting excerpts, and unsupported claims where feasible.
-- **PostgreSQL:** canonical records, versions, traces, benchmark data, and application state.
+- **Article metadata store:** canonical records, versions, traces, benchmark data, and application state; start with the smallest practical local store and introduce PostgreSQL only if needed for durability and query complexity.
+- **Milvus:** vector collections for title/abstract embeddings, scalar metadata needed for retrieval filters, index parameters, and corpus-versioned retrieval experiments.
 - **Object storage:** immutable raw FTP XML, API payloads, manifests, and processing reports.
 
 ## 6. PubMed ingestion requirements
@@ -426,17 +428,18 @@ Human biomedical review is required for a launch sample. LLM-based grading may a
 
 **Tasks**
 
-- Add PostgreSQL schema and migrations.
-- Add lexical indexing and metadata filters.
-- Add chunking and embedding job interfaces.
-- Add pgvector only after lexical retrieval is working.
-- Add rank fusion, deduplication, and optional reranking.
+- Add a Milvus collection schema for article or abstract-chunk embeddings keyed by PMID and corpus version.
+- Add a small canonical metadata store for article records and retrieval traces.
+- Add lexical indexing and metadata filters, with filter fields mirrored into Milvus when practical.
+- Add chunking and embedding job interfaces that upsert vectors into Milvus idempotently.
+- Add Milvus index/search configuration for local development and documented defaults.
+- Add rank fusion, deduplication, and optional reranking across lexical and Milvus vector candidates.
 
 **Acceptance criteria**
 
 - The same query with the same corpus/version produces reproducible candidate rankings within documented tie behavior.
 - Filters work and are covered by tests.
-- Retrieval traces record query, corpus version, candidates, and scores.
+- Retrieval traces record query, corpus version, Milvus collection/index version, candidates, scores, and applied filters.
 
 ### Milestone 3 — grounded chat
 
@@ -558,7 +561,12 @@ Document names and purposes only. Never commit values:
 - `PUBMED_TOOL` — application identifier sent to NCBI.
 - `PUBMED_API_KEY` — optional NCBI API key.
 - `PUBMED_BASE_URL` — configurable NCBI endpoint.
-- `DATABASE_URL` — PostgreSQL connection string.
+- `DATABASE_URL` — optional canonical metadata-store connection string when a database-backed store is used.
+- `MILVUS_URI` — Milvus or Zilliz endpoint for vector retrieval.
+- `MILVUS_TOKEN` — optional Milvus or Zilliz authentication token.
+- `MILVUS_COLLECTION` — collection name for PubMed article or chunk embeddings.
+- `MILVUS_DATABASE` — optional Milvus logical database name.
+- `VECTOR_DIMENSION` — embedding vector dimension expected by the Milvus collection.
 - `OBJECT_STORAGE_BUCKET` — raw input/artifact bucket.
 - `OBJECT_STORAGE_ENDPOINT` — optional S3-compatible endpoint.
 - `LLM_API_KEY` — model-provider credential.
@@ -613,7 +621,7 @@ Do not assume these exact commands if the repository already has conventions; do
 - Topic maps, MeSH exploration, and citation graphs.
 - Saved searches, alerts, workspaces, and collaboration.
 - Expert annotation/review workflow.
-- Dedicated OpenSearch/vector infrastructure.
+- Alternative search or vector infrastructure beyond the initial Milvus-backed retrieval path.
 - Multi-model fallback gateway and tenant quotas.
 - Formal clinical validation or regulatory positioning.
 
@@ -626,16 +634,17 @@ These should be resolved by the implementer only when they affect the next miles
 3. Which initial specialty or corpus query should define the demo?
 4. Which LLM and embedding provider are available in the deployment environment?
 5. Should the first vertical slice use live E-utilities, fixtures, or both?
-6. Is PostgreSQL already available, or should the first demo use a file-backed/local index?
-7. Is public unauthenticated demo access acceptable?
-8. What biomedical expert will review the benchmark sample?
+6. Which Milvus deployment should Milestone 2 target first: local Milvus Lite/standalone, Docker Compose, or managed Zilliz Cloud?
+7. What canonical metadata store should pair with Milvus for article records and retrieval traces?
+8. Is public unauthenticated demo access acceptable?
+9. What biomedical expert will review the benchmark sample?
 
 ## 19. Current status
 
 - **Completed:** feasibility review; MVP scope; ingestion, retrieval, citation, safety, evaluation, milestone plan; repository selection; and the first vertical slice covering PubMed search, ranked results, article detail, fixture mode, API routes, UI, tests, and docs.
 - **In progress:** none for the approved first vertical slice.
 - **Blocked:** none for the first vertical slice.
-- **Next recommended task:** after separate approval, extend retrieval beyond fixture-first search into a local indexed corpus and richer filtering.
+- **Next recommended task:** after separate approval, extend retrieval beyond fixture-first search into a Milvus-backed local indexed corpus with richer filtering.
 
 
 ## 20. Decision Log
@@ -650,6 +659,7 @@ These should be resolved by the implementer only when they affect the next miles
 | 2026-08-13 | Use a fixture-first Next.js + TypeScript stack for the first vertical slice | Keeps the demo runnable offline while preserving a live E-utilities adapter boundary for later expansion. |
 | 2026-08-13 | Seed fixture mode with real PubMed E-utilities records | Avoids fabricated records and keeps offline development faithful to the source corpus. |
 | 2026-08-13 | Keep live E-utilities access behind an environment-selectable adapter boundary | Lets fixture mode stay the default while allowing live validation when configured. |
+| 2026-08-13 | Use Milvus as the Milestone 2 vector retrieval engine | Milvus provides a dedicated vector database path for semantic retrieval while keeping article metadata and lexical retrieval modular. |
 
 ## 21. Agent handoff instruction
 
