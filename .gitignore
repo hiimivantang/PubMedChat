@@ -24,7 +24,8 @@ pnpm-debug.log*
 
 # Claude/OMC local state
 .omc/
-.claude/settings.local.json
+.claude/
+.entire/
 AGENTS.md
 CLAUDE.md
 
