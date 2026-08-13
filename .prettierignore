@@ -1,0 +1,10 @@
+.omc/
+.claude/
+node_modules/
+.next/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+AGENTS.md
+CLAUDE.md
+pubmedchat-prototype-implementation-plan.md
