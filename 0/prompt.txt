@@ -1,0 +1,9 @@
+what's the next milestone to hit
+
+---
+
+ok. i want to be able to use autopilot to implement it once you're done. guide me how to do it
+
+---
+
+include .claude/ and .entire/ in .gitignore
